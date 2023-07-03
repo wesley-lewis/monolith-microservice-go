@@ -16,12 +16,15 @@ type ProductsService struct {
 	readModel productReadModel
 }
 
-func NewProductsService() ProductsService {
-
+func NewProductsService(repo products.Repository, readModel productReadModel) ProductsService {
+	return ProductsService{
+		repo,
+		readModel,
+	}
 }
 
-func (s ProductsService) AllProducts() {
-
+func (s ProductsService) AllProducts() ([]products.Product, error) {
+	return s.readModel.AllProducts()
 }
 
 type AddProductCommand struct {
