@@ -1,6 +1,9 @@
 package application
 
 import (
+	"errors"
+
+	"github.com/wesley-lewis/monolith-microservice/price"
 	"github.com/wesley-lewis/monolith-microservice/products"
 )
 
@@ -30,8 +33,19 @@ type AddProductCommand struct {
 }
 
 func (s ProductsService) AddProduct(cmd AddProductCommand) error {
-	price.NewPrice(cmd.PriceCents, cmd.PriceCurrency)
-	products.NewProduct(products.ID(cmd.ID), cmd.Name, cmd.Description, price)
+	price, err := price.NewPrice(cmd.PriceCents, cmd.PriceCurrency)
+	if err != nil {
+		return errors.Wrap(err, "invalid product price")
+	}
+	p, err := products.NewProduct(products.ID(cmd.ID), cmd.Name, cmd.Description, price)
 
-	s.repo.Save
+	if err != nil {
+		return errors.Wrap(err, "cannot create product")
+	}
+
+	if err := s.repo.Save(p); err != nil {
+		return errors.Wrap(err, "cannot save product")
+	}
+
+	return nil
 }
