@@ -48,6 +48,7 @@ func (p productsResource) GetAll(w http.ResponseWriter, r *http.Request) {
 	view := []productView{}
 	for _, product := range products {
 		view = append(view, productView{string(product.ID()), product.Name(), product.Description(), priceViewFromPrice(product.Price())})
-
 	}
+
+	render.Respond(w, r, view)
 }
